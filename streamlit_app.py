@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
 
 df = pd.read_csv("final_datasheet.csv") # (video id, title, normalized title, score, likes, dislikes, rating, viewCount, result, published at)
 df = df[df['score']!=-1]
