@@ -1,42 +1,37 @@
 import streamlit as st
 import pandas as pd
 import seaborn as sns
+from sklearn.metrics import r2_score
 
-df = pd.read_csv("review_scores.csv")
-df_valid_scores = df[df['score']!=-1]
-games_list_df = df_valid_scores['video title']
-# df_valid_scores
+df = pd.read_csv("final_datasheet.csv") # (video id, title, normalized title, score, likes, dislikes, rating, viewCount, result, published at)
+df = df[df['score']!=-1]
+df["approval rating"] = df["likes"] / (df["likes"] + df["dislikes"])
+games_list_df = df['title']
 
 tab1, tab2 = st.tabs(["📊 Statistics", "📼 Game Review List"])
 
-metrics_container = st.container()
-score_mean = df_valid_scores['score'].mean()
-score_count = df_valid_scores.shape[0]
+with tab1:
+    metrics_container = st.container()
+    score_mean = df['score'].mean()
+    score_count = df.shape[0]
 
-col1, col2, col3 = st.columns([10, 10, 10])
+    col1, col2, col3 = st.columns([10, 10, 10])
 
-with metrics_container:
-    with col1:
-        metric_score_mean = st.metric("Average Review Score", round(score_mean, 2))
+    with metrics_container:
+        with col1:
+            metric_score_mean = st.metric("Average Review Score", round(score_mean, 2))
 
-    with col2:
-        metric_score_count = st.metric("Number of Reviews", score_count)
+        with col2:
+            metric_score_count = st.metric("Number of Reviews", score_count)
 
-    with col3:
-        st.write("inside right metrics")
+        with col3:
+            R2 = r2_score(df['score'], df['approval rating'])
+            metric_correlation = st.metric("R$^\\text{2}$", round(R2, 2))
 
-# chart
+    # chart
+    st.scatter_chart(data=df[["score", "approval rating"]], x="score", y="approval rating")
 
-
-
-# with left_column:
-#     metric_score_mean = st.metric("Average Review Score", round(score_mean, 2))
-#     metric__score_count = st.metric("Number of Reviews", score_count)
-
-# # Or even better, call Streamlit functions inside a "with" block:
-# with right_column:
-#     chosen = st.radio(
-#         'Sorting hat',
-#         ("Gryffindor", "Ravenclaw", "Hufflepuff", "Slytherin"))
-#     st.write(f"You are in {chosen} house!")
+with tab2:
+    games_list_df
+    # df[["score", "approval rating"]]
 
