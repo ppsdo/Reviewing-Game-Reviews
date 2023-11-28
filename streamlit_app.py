@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import seaborn as sns
-from sklearn.metrics import r2_score
 
 df = pd.read_csv("final_datasheet.csv") # (video id, title, normalized title, score, likes, dislikes, rating, viewCount, result, published at)
 df = df[df['score']!=-1]
@@ -25,8 +24,10 @@ with tab1:
             metric_score_count = st.metric("Number of Reviews", score_count)
 
         with col3:
-            R2 = r2_score(df['score'], df['approval rating'])
-            metric_correlation = st.metric("R$^\\text{2}$", round(R2, 2))
+            res = df['score'].sub(df['approval rating']).pow(2).sum()
+            tot = df['score'].sub(df['score'].mean()).pow(2).sum()
+            r2 = 1 - res/tot
+            metric_correlation = st.metric("R$^\\text{2}$", round(r2, 2))
 
     # chart
     st.scatter_chart(data=df[["score", "approval rating"]], x="score", y="approval rating")
